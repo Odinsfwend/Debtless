@@ -1,0 +1,215 @@
+"""
+
+Author: Eric Hall
+
+Date Created: 07/26/2024
+
+Assignment: Final Project - Debtless
+
+Purpose: The purpose of this program is to give its users a broad idea of how they should allocate
+
+their money. The program lets the users select between Loan Calculations to determine the payments of a
+
+Potential loan; "Credit Card Debt" lets users see how long it would take to pay off their credit cards; Income
+
+Allocation lets users see how their monthly income should be divided according to the 50-30-20 rule.
+
+"""
+
+from breezypythongui import EasyFrame
+
+#This Class controls the Income Allocation portion of Debtless
+class Finance(EasyFrame):
+#This Definition creates the window of Income Allocation
+    def __init__(self):
+
+        EasyFrame.__init__(self, title = "Debtless")
+
+        self.IncomeLabel = self.addLabel(text = "Monthly Income", row = 0, column = 0)
+
+        self.TotalIncome = self.addFloatField(value = 0.0, row = 0, column = 1)
+
+        self.Compute = self.addButton(text = "Compute", row = 5, column = 3, command = self.IncomeSpending)
+
+        self.WantedSpending = self.addLabel(text = "", row = 3, column = 2)
+
+        self.Savings = self.addLabel(text = "", row = 4, column = 2)
+#This method calculates the portions of a users monthly income               
+    def IncomeSpending(self):
+
+        Income = self.TotalIncome.getNumber()#Users monthly income, taken from text box
+
+        self.RequiredSpending = round((Income * 0.5), 2)#calculates spending for necessity
+       
+        self.NeededSpending = self.addLabel(text = ('Non-Negotiable Spending: '+str(self.RequiredSpending)), row = 2, column = 0)
+
+        WantedSpending = round((Income * 0.3), 2)#calculates spending for wants
+
+        self.Wantedspending = self.addLabel(text = ('Spending for Wants:  ' +str(WantedSpending)), row = 3, column = 0)
+
+        Savings = round((Income * 0.2), 2)#calculates savings
+
+        self.Savings = self.addLabel(text = ('Amount to Save:  '+ str(Savings)), row = 4, column = 0)
+                                                   
+#This class is responsible for calculating users credit card debt
+class CredCalc(EasyFrame):
+#Creates the window with labels and input text boxes
+    def __init__(self):
+
+        EasyFrame.__init__(self, title = "Debtless")
+
+        self.InterestLabel = self.addLabel(text = "Interest Rate", row = 1, column = 0)
+
+        self.PrincipalLabel = self.addLabel(text = 'Principal Rate', row = 2, column = 0)
+
+        self.BalanceLabel = self.addLabel(text = 'Balance', row = 3, column = 0)
+
+        self.Interest = self.addFloatField(value = 0.0, row = 1, column = 1)
+
+        self.Principal = self.addFloatField(value = 0.0, row = 2, column = 1)
+
+        self.Balance = self.addFloatField(value = 0.0, row = 3, column = 1)
+
+        self.Compute = self.addButton(text = "Compute", row = 5, column = 3, command = self.CredPayments)
+
+#This method calculates the credit card payments
+    def CredPayments(self):
+
+        interestRate = self.Interest.getNumber()
+
+        principalRate = self.Principal.getNumber()
+
+        Balance = self.Balance.getNumber()
+
+        Month = 1#
+
+        self.PaymentOutput = self.addTextArea(text = "", row = 6, column = 1, columnspan =
+                                               3, width = 75, height = 15)
+        
+        result = "%6s%15s%12s%20s%18s\n" % ("Month", "Balance", "Interest",#result creates the catagories
+                                        "Principal Payment", "Total Payment")
+ 
+        while Balance >= 25:
+
+            MonthlyInterestRate = (interestRate / 12)
+
+            interestPayment = MonthlyInterestRate * Balance
+
+            principalPayment = principalRate * Balance
+
+            TotalPay = interestPayment + principalPayment
+
+            Balance -= (interestPayment + principalPayment)
+
+            result += "%4s%18.2f%10.2f%16.2f%18.2f\n" % (Month, Balance, interestPayment, principalPayment, TotalPay)
+
+            Month += 1
+
+            self.PaymentOutput.setText(result)
+
+#This class calculates loan payments
+class LoanCalc(EasyFrame):
+#This method creates the frame for the loancalc class
+    def __init__(self):
+
+        EasyFrame.__init__(self, title = "Debtless")
+
+        self.InterestLabel = self.addLabel(text = "Interest Rate", row = 1, column = 0)
+
+        self.LoanLengthLabel = self.addLabel(text = 'Lifetime of Loan (Years)', row = 2, column = 0)
+
+        self.BalanceLabel = self.addLabel(text = 'Loan Amount', row = 3, column = 0)
+
+        self.Interest = self.addFloatField(value = 0.0, row = 1, column = 1)
+
+        self.LoanLength = self.addFloatField(value = 0.0, row = 2, column = 1)
+
+        self.Balance = self.addFloatField(value = 0.0, row = 3, column = 1)
+
+        self.Compute = self.addButton(text = "Compute", row = 5, column = 3, command = self.LoanPayments)
+
+        self.PaymentOutput = self.addTextArea(text = "", row = 6, column = 1, columnspan =
+                                               3, width = 75, height = 15)        
+
+#This Method calculates the loan payments
+    def LoanPayments(self):
+
+        Table = "%6s%18s%20s%27s\n" % ("Month", "Total Balance", "Monthly Payment",
+                                        "Balance After Payment")
+
+
+        InterestRate = self.Interest.getNumber()#Loan Interest rate
+
+        Balance = self.Balance.getNumber()#Total Amount Borrowed
+
+        LoanLength = self.LoanLength.getNumber() * 12#The length of the loan converted to months
+
+        InterestAmount = InterestRate * Balance#The calculated interest on the loan
+
+        LoanTotal = InterestAmount + Balance#The amount that is to be paid back
+
+        MonthlyPayment = (LoanTotal / LoanLength)#The monthly payment
+
+        LoanLength = int(LoanLength)#Converted loan length to an integer to be used in 'for' loop
+
+        month = 1#Creating the month variable.
+
+        for month in range(1, LoanLength + 1):
+
+            InterestAmount = InterestAmount
+
+            MonthlyPayment = MonthlyPayment
+
+            EndingBalance = LoanTotal - MonthlyPayment#Calculates the balance after payment
+
+            Table += "%4s%18.2f%18.2f%24.2f\n" %  (month, LoanTotal, MonthlyPayment, EndingBalance)
+
+            month += 1
+
+            LoanTotal = EndingBalance
+
+
+          
+        self.PaymentOutput.setText(Table)#Populates the textbox with the loan calculations
+                    
+
+#This class is the initial window of Debtless
+class DebtlessOptions(EasyFrame):
+
+    def __init__(self):
+
+        EasyFrame.__init__(self, title = "Debtless")
+
+        self.CreditB = self.addButton(text = 'Credit Card Debt', row = 0, column = 0, command = self.Credit)
+
+        self.LoanB = self.addButton(text = 'Loan Calculations', row = 0, column = 1, command = self.Loan )
+
+        self.IncomeAllocation = self.addButton(text = 'Income Allocation', row = 0,
+                                               column = 2, command = self.Allocation)
+        self.ExitLabel = self.addButton(text = 'Exit', row = 3, column = 1, command = quit)
+
+        
+    
+    def Allocation(self):#Method to call Finance
+
+        Finance()
+
+    def Credit(self):#Method to call CredCalc
+
+        CredCalc()
+
+    def Loan(self):#Method to call LoanCalc
+
+        LoanCalc()
+
+
+    
+
+                            
+
+
+
+DebtlessOptions().mainloop()
+
+
+
